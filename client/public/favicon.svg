@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200" role="img" aria-labelledby="titleDesc">
+  <title id="titleDesc">CreateSmart.ai logo icon</title>
+  <defs>
+    <linearGradient id="g1" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#4FD1C5"/>
+      <stop offset="100%" stop-color="#3182CE"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="0" x2="1">
+      <stop offset="0%" stop-color="#FFDD55"/>
+      <stop offset="100%" stop-color="#FF7A59"/>
+    </linearGradient>
+    <filter id="f1" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <!-- Icon background rounded square -->
+  <g transform="translate(20,20)">
+    <rect x="0" y="0" width="160" height="160" rx="28" fill="url(#g1)" filter="url(#f1)"/>
+    <!-- stylized lightbulb -->
+    <g transform="translate(48,28)" fill="white" stroke="none">
+      <!-- bulb glow -->
+      <ellipse cx="32" cy="44" rx="32" ry="32" opacity="0.08" fill="white"/>
+      <!-- bulb body -->
+      <path d="M32 6&#10;               C20 6 10 16 10 28&#10;               C10 40 20 50 32 62&#10;               C44 50 54 40 54 28&#10;               C54 16 44 6 32 6 Z"/>
+      <!-- filament / spark -->
+      <path d="M32 34&#10;               L28 42&#10;               L32 46&#10;               L36 42&#10;               L32 34 Z" fill="url(#g2)"/>
+      <!-- base -->
+      <rect x="22" y="64" width="20" height="10" rx="2" fill="#E6F6F4"/>
+      <rect x="24" y="74" width="16" height="6" rx="2" fill="#CDEFF0"/>
+    </g>
+  </g>
+</svg>

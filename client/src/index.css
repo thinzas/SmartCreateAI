@@ -1,0 +1,29 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+
+@import "tailwindcss" ; 
+
+*{
+  font-family: "Nunito", sans-serif;
+}
+
+@theme{
+  --color-primary: #40a4e8
+}
+
+.gradient-button {
+      background: linear-gradient(to bottom, #61b4d4 , #40a4e8, #40a4e8, #40a4e8,#40a4e8, #3487cc);
+}
+
+.gradient-button-white {
+      background: linear-gradient(to bottom, white , white, white, white,white, white, rgb(255, 253, 253), rgb(212, 210, 210));
+}
+
+.reset-tw, .reset-tw *{
+  all: revert !important;
+}
+
+.cl-drawerRoot {
+  z-index: 10;
+
+}
