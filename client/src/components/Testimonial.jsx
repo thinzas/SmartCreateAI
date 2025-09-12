@@ -32,7 +32,7 @@ const Testimonial = () => {
   ];
 
   return (
-    <div className="px-4 sm:px-20 xl:px-32 py-24">
+    <div className="px-4 sm:px-20 xl:px-32 py-24 bg-[url(/gradientBackground.png)] bg-cover bg-no-repeat">
       <div className="text-center">
         <h2 className="text-slate-700 text-[42px] font-semibold">
           Loved by Creators

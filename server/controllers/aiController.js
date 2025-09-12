@@ -1,19 +1,23 @@
 import OpenAI from "openai";
 import sql from "../configs/db.js";
 import { clerkClient } from "@clerk/express";
-import Replicate from "replicate";
+// import Replicate from "replicate";
 import { v2 as cloudinary } from "cloudinary";
 import fs from 'fs'
 import pdf from 'pdf-parse/lib/pdf-parse.js'
+import axios from 'axios';
+import { InferenceClient } from "@huggingface/inference";
 
 const AI = new OpenAI({
     apiKey: process.env.GEMINI_API_KEY,
     baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/"
 });
 
-const replicate = new Replicate({
-    auth: process.env.REPLICATE_API_TOKEN,
-});
+// const replicate = new Replicate({
+//     auth: process.env.REPLICATE_API_TOKEN,
+// });
+
+const client = new InferenceClient(process.env.HUGGINGFACE_API_KEY);
 
 export const generateArticle = async (req, res) => {
     try {
@@ -101,50 +105,105 @@ export const generateBlogTitle = async (req, res) => {
     }
 }
 
+// export const generateImage = async (req, res) => {
+//     try {
+//         const { userId } = req.auth()
+//         const { prompt, publish } = req.body
+//         const plan = req.plan
+
+//         if (plan !== 'premium') {
+//             return res.json({ success: false, message: "This feature is only available for premium subscriptions." })
+//         }
+
+//         const output = await replicate.run(
+//             "ideogram-ai/ideogram-v3-turbo",
+//             {
+//                 input: {
+//                     prompt: prompt
+//                 }
+//             }
+//         );
+
+//         console.log("Replicate response:", output);
+
+//         // Handle FileOutput object - convert to URL string
+//         let imageUrl;
+//         if (Array.isArray(output)) {
+//             // If it's an array, get the first item
+//             const firstOutput = output[0];
+//             imageUrl = typeof firstOutput === 'string' ? firstOutput : firstOutput.toString();
+//         } else {
+//             // If it's a single FileOutput object
+//             imageUrl = typeof output === 'string' ? output : output.toString();
+//         }
+
+//         console.log("Extracted image URL:", imageUrl);
+
+//         if (!imageUrl) {
+//             throw new Error("No image URL received from Replicate");
+//         }
+
+//         console.log("Uploading to Cloudinary...");
+
+//         // Upload the URL string to Cloudinary
+//         const cloudinaryResponse = await cloudinary.uploader.upload(imageUrl, {
+//             folder: "SmartCreateAI/generated-images",
+//             resource_type: "image"
+//         });
+
+//         const secure_url = cloudinaryResponse.secure_url;
+//         console.log("Image uploaded successfully:", secure_url);
+
+//         await sql`INSERT INTO creations (user_id, prompt, content, type, publish) VALUES (${userId}, ${prompt}, ${secure_url}, 'image', ${publish ?? false})`
+
+
+//         res.json({ success: true, content: secure_url })
+
+//     } catch (error) {
+
+//         console.log(error.message)
+//         res.json({ success: false, message: error.message })
+//     }
+// }
+
 export const generateImage = async (req, res) => {
     try {
-        const { userId } = req.auth()
-        const { prompt, publish } = req.body
-        const plan = req.plan
+        const { userId } = req.auth();
+        const { prompt, publish } = req.body;
+        const plan = req.plan;
 
         if (plan !== 'premium') {
-            return res.json({ success: false, message: "This feature is only available for premium subscriptions." })
+            return res.json({
+                success: false,
+                message: "Image generation is only available for premium subscriptions."
+            });
         }
 
-        const output = await replicate.run(
-            "ideogram-ai/ideogram-v3-turbo",
-            {
-                input: {
-                    prompt: prompt
+        console.log("Generating image with Hugging Face for user:", userId);
+
+        // Correct Hugging Face API call
+        const imageBlob = await client.textToImage({
+            model: "black-forest-labs/FLUX.1-schnell", // Use schnell for faster generation
+            inputs: prompt,
+        });
+
+        console.log("Image generated successfully");
+
+        // Convert blob to buffer
+        const imageBuffer = Buffer.from(await imageBlob.arrayBuffer());
+
+        // Upload buffer to Cloudinary
+        const cloudinaryResponse = await new Promise((resolve, reject) => {
+            cloudinary.uploader.upload_stream(
+                {
+                    folder: "SmartCreateAI/generated-images",
+                    resource_type: "image"
+                },
+                (error, result) => {
+                    if (error) reject(error);
+                    else resolve(result);
                 }
-            }
-        );
-
-        console.log("Replicate response:", output);
-
-        // Handle FileOutput object - convert to URL string
-        let imageUrl;
-        if (Array.isArray(output)) {
-            // If it's an array, get the first item
-            const firstOutput = output[0];
-            imageUrl = typeof firstOutput === 'string' ? firstOutput : firstOutput.toString();
-        } else {
-            // If it's a single FileOutput object
-            imageUrl = typeof output === 'string' ? output : output.toString();
-        }
-
-        console.log("Extracted image URL:", imageUrl);
-
-        if (!imageUrl) {
-            throw new Error("No image URL received from Replicate");
-        }
-
-        console.log("Uploading to Cloudinary...");
-
-        // Upload the URL string to Cloudinary
-        const cloudinaryResponse = await cloudinary.uploader.upload(imageUrl, {
-            folder: "SmartCreateAI/generated-images",
-            resource_type: "image"
+            ).end(imageBuffer);
         });
 
         const secure_url = cloudinaryResponse.secure_url;
@@ -152,15 +211,35 @@ export const generateImage = async (req, res) => {
 
         await sql`INSERT INTO creations (user_id, prompt, content, type, publish) VALUES (${userId}, ${prompt}, ${secure_url}, 'image', ${publish ?? false})`
 
-
         res.json({ success: true, content: secure_url })
 
     } catch (error) {
+        console.error("Image generation error:", error);
 
-        console.log(error.message)
-        res.json({ success: false, message: error.message })
+        // More specific error handling
+        if (error.status === 503 || error.response?.status === 503) {
+            res.json({
+                success: false,
+                message: "Model is loading. Please wait 2-3 minutes and try again."
+            });
+        } else if (error.status === 429 || error.response?.status === 429) {
+            res.json({
+                success: false,
+                message: "Rate limit exceeded. Please try again in a few minutes."
+            });
+        } else if (error.status === 401 || error.response?.status === 401) {
+            res.json({
+                success: false,
+                message: "Invalid API key. Please check your Hugging Face configuration."
+            });
+        } else {
+            res.json({
+                success: false,
+                message: "Failed to generate image. Please try again."
+            });
+        }
     }
-}
+};
 
 export const removeImageBackground = async (req, res) => {
     try {
@@ -278,3 +357,19 @@ export const resumeReview = async (req, res) => {
         res.json({ success: false, message: error.message })
     }
 }
+
+// Add this test function to your controller temporarily
+export const testHuggingFace = async (req, res) => {
+    try {
+        const response = await client.textToImage({
+            provider: "together",
+            model: "black-forest-labs/FLUX.1-dev",
+            inputs: prompt,
+            parameters: { num_inference_steps: 5 },
+        });
+
+        res.json({ success: true, message: "Token works!", data: response.status });
+    } catch (error) {
+        res.json({ success: false, message: "Token test failed", error: error.response?.status });
+    }
+};

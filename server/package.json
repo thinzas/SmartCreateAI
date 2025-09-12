@@ -13,6 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "@clerk/express": "^1.7.30",
+    "@huggingface/inference": "^4.8.0",
     "@neondatabase/serverless": "^1.0.1",
     "axios": "^1.11.0",
     "cloudinary": "^2.7.0",
@@ -20,6 +21,7 @@
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
     "multer": "^2.0.2",
+    "node-fetch": "^3.3.2",
     "openai": "^5.20.0",
     "pdf-parse": "^1.1.1",
     "replicate": "^1.1.0"

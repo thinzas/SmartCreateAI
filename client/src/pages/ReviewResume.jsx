@@ -42,10 +42,11 @@ const ReviewResume = () => {
       {/* left col */}
       <form
         onSubmit={onSubmitHandler}
-        className="w-full max-w-lg p-4 bg-white rounded-lg border border-gray-200"
+        className="w-full max-w-lg p-4  rounded-lg border  border-white/20 
+             bg-white/60 backdrop-blur-xl shadow-lg"
       >
         <div className="flex items-center gap-3">
-          <Sparkles className="w-6 text-[#00DA83]" />
+          <Sparkles className="w-6 text-purple-500" />
           <h1 className="text-xl font-semibold">Resume Review</h1>
         </div>
         <p className="mt-6 text-sm font-medium">Upload Resume</p>
@@ -53,7 +54,7 @@ const ReviewResume = () => {
           onChange={(e) => setInput(e.target.files[0])}
           type="file"
           accept="application/pdf"
-          className="w-full p-2 px-3 mt-2 outline-none text-sm rounded-md border border-gray-300 text-gray-600"
+          className="w-full p-2 px-3 mt-2 outline-none text-sm rounded-md border border-gray-500 text-gray-600"
           required
         />
 
@@ -63,7 +64,7 @@ const ReviewResume = () => {
         <br />
         <button
           disabled={loading}
-          className="w-full flex justify-center items-center gap-2 bg-gradient-to-r from-[#00DA83] to-[#009BB3] text-white px-4 py-2 mt -6 text-sm rounded-lg cursor-pointer"
+          className="w-full flex justify-center items-center gap-2 bg-gradient-to-r from-indigo-400 to-purple-500 text-white px-4 py-2 mt -6 text-sm rounded-lg cursor-pointer"
         >
           {loading ? (
             <span className="w-4 h-4 my-1 rounded-full border-2 border-t-transparent animate-spin"></span>
@@ -75,21 +76,24 @@ const ReviewResume = () => {
       </form>
 
       {/* right col */}
-      <div className="w-full max-w-lg p-4 bg-white rounded-lg flex flex-col border border-gray-200 min-h-96 max-h-[600px]">
+      <div
+        className="w-full max-w-lg p-4  rounded-lg flex flex-col border border-white/20 
+             bg-white/60 backdrop-blur-xl shadow-lg min-h-96 max-h-[600px]"
+      >
         <div className="flex items-center gap-3">
-          <FileText className="w-5 h-5 text-[#00DA83]" />
+          <FileText className="w-5 h-5 text-purple-500" />
           <h1 className="text-xl font-semibold">Analysis Results</h1>
         </div>
 
         {!content ? (
           <div className="flex-1 flex justify-center items-center">
-            <div className="text-sm flex flex-col items-center gap-5 text-gray-400">
+            <div className="text-sm flex flex-col items-center gap-5 text-gray-500">
               <FileText className="w-9 h-9" />
               <p>Upload an resume and click "Review Resume" to get started</p>
             </div>
           </div>
         ) : (
-          <div className="reset-tw">
+          <div className="mt-3 h-full overflow-y-scroll text-sm text-slate-600">
             <Markdown>{content}</Markdown>
           </div>
         )}

@@ -8,11 +8,11 @@ const Navbar = () => {
   const { user } = useUser();
   const { openSignIn } = useClerk();
   return (
-    <div className="fixed z-5 w-full backdrop-blur-2xl flex justify-between items-center py-3 px-1 sm:px-5 xl:px-8  cursor-pointer">
+    <div className="fixed h-14  min-h-14 z-5 w-full backdrop-blur-2xl flex justify-between items-center  px-1 sm:px-5 xl:px-8  cursor-pointer">
       <img
         src={assets.logo}
         alt="logo"
-        className="w-32 sm:w-44 cursor-pointer"
+        className="w-50 sm:w-52 py-3   cursor-pointer"
         onClick={() => navigate("/")}
       />
 

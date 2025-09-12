@@ -34,20 +34,23 @@ const GenerateImages = () => {
       const prompt = `Generate an image of ${input} in the style ${selectedStyle}`;
 
       const { data } = await axios.post(
-        "/api/ai/generate-image",
+        "/api/ai/generate-image", // Use the same endpoint
         { prompt, publish },
         {
           headers: { Authorization: `Bearer ${await getToken()}` },
+          timeout: 45000,
         }
       );
 
       if (data.success) {
         setContent(data.content);
+        toast.success("Image generated successfully!");
       } else {
         toast.error(data.message);
       }
     } catch (error) {
-      toast.error(error.message);
+      console.error("Frontend error:", error);
+      toast.error("Failed to generate image. Please try again.");
     }
 
     setLoading(false);
@@ -58,7 +61,8 @@ const GenerateImages = () => {
       {/* left col */}
       <form
         onSubmit={onSubmitHandler}
-        className="w-full max-w-lg p-4 bg-white rounded-lg border border-gray-200"
+        className="w-full max-w-lg p-4 rounded-lg border border-white/20 
+             bg-white/60 backdrop-blur-xl shadow-lg"
       >
         <div className="flex items-center gap-3">
           <Sparkles className="w-6 text-[#00AD25]" />
@@ -69,7 +73,7 @@ const GenerateImages = () => {
           onChange={(e) => setInput(e.target.value)}
           value={input}
           rows={4}
-          className="w-full p-2 px-3 mt-2 outline-none text-sm rounded-md border border-gray-300"
+          className="w-full p-2 px-3 mt-2 outline-none text-sm rounded-md border border-gray-500"
           placeholder="Describe what you want to see in the image..."
           required
         />
@@ -81,7 +85,7 @@ const GenerateImages = () => {
               className={`text-xs px-4 py-1 border rounded-full cursor-pointer ${
                 selectedStyle === item
                   ? "bg-green-50 text-green-700"
-                  : "text-gray-500 border-gray-300"
+                  : "text-gray-500 border-gray-500"
               } `}
               key={item}
             >
@@ -112,7 +116,7 @@ const GenerateImages = () => {
         <br />
         <button
           disabled={loading}
-          className="w-full flex justify-center items-center gap-2 bg-gradient-to-r from-[#00AD25] to-[#04FF50] text-white px-4 py-2 mt -6 text-sm rounded-lg cursor-pointer"
+          className="w-full flex justify-center items-center gap-2 bg-gradient-to-r from-[#04FF50] to-[#00AD25] text-white px-4 py-2 mt -6 text-sm rounded-lg cursor-pointer"
         >
           {loading ? (
             <span className="w-4 h-4 my-1 rounded-full border-2 border-t-transparent animate-spin"></span>
@@ -124,14 +128,17 @@ const GenerateImages = () => {
       </form>
 
       {/* right col */}
-      <div className="w-full max-w-lg p-4 bg-white rounded-lg flex flex-col border border-gray-200 min-h-96 max-h-[600px]">
+      <div
+        className="w-full max-w-lg p-4  rounded-lg flex flex-col border border-white/20 
+             bg-white/60 backdrop-blur-xl shadow-lg min-h-96 max-h-[600px]"
+      >
         <div className="flex items-center gap-3">
           <Image className="w-5 h-5 text-[#00AD25]" />
           <h1 className="text-xl font-semibold">Generated image</h1>
         </div>
         {!content ? (
           <div className="flex-1 flex justify-center items-center">
-            <div className="text-sm flex flex-col items-center gap-5 text-gray-400">
+            <div className="text-sm flex flex-col items-center gap-5 text-gray-500">
               <Image className="w-9 h-9" />
               <p>Enter a topic and click "Generate image " to get started</p>
             </div>
